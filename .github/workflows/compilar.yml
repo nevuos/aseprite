@@ -1,0 +1,24 @@
+name: Compilar Aseprite
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-aseprite:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Executar Build
+        uses: aseprite/build-action@v1
+        with:
+          target: 'aseprite'
+
+      - name: Guardar Artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: Aseprite-Windows
+          path: build/bin/aseprite.exe
