@@ -12,15 +12,13 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Instalar Ninja
-        uses: seanpackham/setup-ninja@v1
-
       - name: Descarregar Skia pré-compilada
+        shell: bash
         run: |
           curl -L -o skia.zip https://github.com/aseprite/skia/releases/download/m102/Skia-Windows-Release-x64.zip
           7z x skia.zip -oskia
 
-      - name: Configurar e Compilar Aseprite
+      - name: Compilar Aseprite
         shell: cmd
         run: |
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
@@ -32,8 +30,15 @@ jobs:
             -DSKIA_LIBRARY=%CD%\skia\out\Release-x64\skia.lib
           ninja -C build aseprite
 
-      - name: Disponibilizar Executável para Descarregamento
+      - name: Empacotar Executável e Dados
+        shell: bash
+        run: |
+          mkdir aseprite-dist
+          cp build/bin/aseprite.exe aseprite-dist/
+          cp -r bin/data aseprite-dist/data
+
+      - name: Disponibilizar para Download
         uses: actions/upload-artifact@v4
         with:
-          name: Aseprite-Windows
-          path: build/bin/aseprite.exe
+          name: Aseprite-Windows-Completo
+          path: aseprite-dist
