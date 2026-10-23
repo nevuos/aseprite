@@ -13,12 +13,12 @@ jobs:
           submodules: 'recursive'
 
       - name: Descarregar e Extrair Skia
-        shell: powershell
+        shell: cmd
         run: |
-          $url = "https://github.com/aseprite/skia/releases/download/m102/Skia-Windows-Release-x64.zip"
-          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-          Invoke-WebRequest -Uri $url -OutFile "skia.zip"
-          Expand-Archive -Path "skia.zip" -DestinationPath "skia" -Force
+          curl.exe -L -o skia.zip "https://github.com/aseprite/skia/releases/download/m102-861e4743af/Skia-Windows-Release-x64.zip"
+          tar.exe -xf skia.zip -C .
+          if not exist skia mkdir skia
+          xcopy /E /I /Y out skia\out
 
       - name: Compilar Aseprite
         shell: cmd
@@ -33,11 +33,11 @@ jobs:
           ninja -C build aseprite
 
       - name: Empacotar Executável e Dados
-        shell: powershell
+        shell: cmd
         run: |
-          New-Item -ItemType Directory -Force -Path aseprite-dist
-          Copy-Item "build\bin\aseprite.exe" -Destination "aseprite-dist\"
-          Copy-Item -Recurse "bin\data" -Destination "aseprite-dist\"
+          mkdir aseprite-dist
+          copy build\bin\aseprite.exe aseprite-dist\
+          xcopy /E /I /Y bin\data aseprite-dist\data
 
       - name: Disponibilizar para Download
         uses: actions/upload-artifact@v4
